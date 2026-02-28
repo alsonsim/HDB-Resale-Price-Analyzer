@@ -1,14 +1,15 @@
 # SG HDB Price Analyzer
 
-A real-time HDB resale price analysis tool powered by data.gov.sg, Bright Data, and a local Ollama LLM.
+A real-time HDB resale price analysis tool powered by [data.gov.sg](data.gov.sg), [Bright Data](https://brightdata.com/), [ActionBook](https://actionbook.dev/), [AContext](https://acontext.io/) and a local [Ollama](https://ollama.com) LLM.
 
 ## Features
 
 - Real-time price analysis against Singapore's HDB resale market
-- AI-powered verdicts (Underpriced / Fair / Overpriced) via Ollama llama3.2
+- AI-powered verdicts **(Underpriced / Fair / Overpriced)** via Ollama llama3.2
 - Interactive AI chatbot for HDB market questions
 - Live scraping via Bright Data + ActionBook
-- Historical data from data.gov.sg
+- Historical data from [data.gov.sg](data.gov.sg)
+- Session-aware context management via Acontext
 
 ## Tech Stack
 
@@ -19,6 +20,20 @@ A real-time HDB resale price analysis tool powered by data.gov.sg, Bright Data, 
 - **Data:** data.gov.sg Resale Flat Prices API + CSV
 - **Session Management:** Acontext
 
+## How It Works
+```
+User Query
+↓
+Ollama llama3.2 ← Acontext (Session/Memory)
+↓
+ActionBook (navigate + interact with site)
+↓
+Bright Data (scrape at scale / bypass CAPTCHAs)
+↓
+Ollama llama3.2 (analyze + generate verdict)
+↓
+Output (dashboard / AI explanation / chat)
+```
 ## Project Structure
 ```
 AgentForge/
