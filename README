@@ -1,1 +1,77 @@
-README
+# AgentForge — HDB Resale Monitor
+
+AI-powered agent that monitors Singapore HDB resale flat listings, scrapes
+transaction data, and generates actionable pricing insights.
+
+## Architecture
+
+```
+User Query → LLM (GPT-4 / Claude) ← Acontext (Session/Skills)
+           → ActionBook (navigate/interact with property sites)
+           → Bright Data (scrape at scale / bypass CAPTCHAs)
+           → LLM (analyze + generate report)
+           → Dashboard / Alert / CSV
+```
+
+## Tech Stack
+
+- **Backend:** Python 3.11+, FastAPI, SQLAlchemy, SQLite
+- **Frontend:** React 19, TypeScript, Vite, Tailwind CSS, Recharts
+- **AI:** OpenAI GPT-4 / Anthropic Claude (configurable)
+- **Tools:** Bright Data SDK, ActionBook, Acontext
+- **Data:** data.gov.sg API (official HDB resale prices)
+
+## Quick Start
+
+1. Clone and configure:
+   ```
+   cp .env.example .env
+   # Edit .env with your API keys
+   ```
+
+2. Install backend dependencies:
+   ```
+   cd backend
+   pip install -r requirements.txt
+   ```
+
+3. Seed the database with HDB data:
+   ```
+   python scripts/seed_data.py
+   ```
+
+4. Install frontend dependencies:
+   ```
+   cd frontend
+   npm install
+   ```
+
+5. Run both servers:
+   ```
+   python scripts/run_dev.py
+   ```
+   - Backend: http://localhost:8000
+   - Frontend: http://localhost:5173
+   - API docs: http://localhost:8000/docs
+
+## API Endpoints
+
+| Method | Endpoint            | Description                          |
+|--------|---------------------|--------------------------------------|
+| GET    | /api/transactions   | Query resale transactions            |
+| GET    | /api/trends/{town}  | Price trend data for charts          |
+| POST   | /api/analyze        | AI price analysis for a listing      |
+| POST   | /api/chat           | Chat with the AI agent               |
+| POST   | /api/scrape/datagov | Sync data from data.gov.sg           |
+| POST   | /api/scrape/listings| Scrape live listings (Bright Data)   |
+| GET    | /api/alerts         | List price alerts                    |
+| POST   | /api/alerts         | Create a price alert                 |
+| GET    | /api/health         | Health check                         |
+
+## Environment Variables
+
+See `.env.example` for the full list. At minimum you need:
+- `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` for AI insights
+- `BRIGHTDATA_API_TOKEN` for live listing scraping (optional)
+- `ACTIONBOOK_API_KEY` for browser automation (optional)
+- `ACONTEXT_API_KEY` for agent memory (optional, falls back to in-memory)
