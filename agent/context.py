@@ -1,36 +1,30 @@
-import json, os, uuid
-from datetime import datetime
+import os
+from acontext import AcontextClient
+from dotenv import load_dotenv
 
-SESSION_FILE = "./data/sessions.json"
+load_dotenv()
 
-def _load():
-    if os.path.exists(SESSION_FILE):
-        with open(SESSION_FILE) as f:
-            return json.load(f)
-    return {}
-
-def _save(data):
-    os.makedirs("./data", exist_ok=True)
-    with open(SESSION_FILE, "w") as f:
-        json.dump(data, f, indent=2)
+client = AcontextClient(api_key=os.getenv("ACONTEXT_API_KEY"))
 
 def create_session(user_query: str) -> str:
-    sessions = _load()
-    session_id = str(uuid.uuid4())[:8]
-    sessions[session_id] = {
-        "query": user_query,
-        "created_at": datetime.now().isoformat(),
-        "data": {}
-    }
-    _save(sessions)
-    print(f"📝 Session created: {session_id}")
-    return session_id
+    session = client.sessions.create(user="hdb-agent")
+    # Store the initial query
+    client.sessions.store_message(
+        session.id,
+        blob={"role": "user", "content": user_query}
+    )
+    print(f"📝 Session created: {session.id}")
+    return session.id
 
 def save_to_session(session_id: str, key: str, value):
-    sessions = _load()
-    sessions[session_id]["data"][key] = value
-    _save(sessions)
+    client.sessions.store_message(
+        session_id,
+        blob={"role": "assistant", "content": f"{key}: {str(value)[:500]}"}
+    )
 
 def get_from_session(session_id: str, key: str):
-    sessions = _load()
-    return sessions.get(session_id, {}).get("data", {}).get(key)
+    messages = client.sessions.get_messages(session_id=session_id)
+    for msg in reversed(messages.items):
+        if msg.get("blob", {}).get("content", "").startswith(f"{key}:"):
+            return msg["blob"]["content"]
+    return None
